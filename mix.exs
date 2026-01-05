@@ -31,6 +31,7 @@ defmodule Samiti.MixProject do
     [
       {:ecto_sql, "~> 3.13"},
       {:plug_cowboy, "~> 2.7"},
+      {:inflex, "~> 2.1"},
 
       # Only for local library testing
       {:postgrex, "~> 0.21.1", only: :test},

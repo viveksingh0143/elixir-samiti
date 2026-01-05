@@ -17,17 +17,23 @@ defmodule Samiti.Plug do
   Extracts the tenant and assigns it.
   """
   def call(conn, _opts) do
-    case extract_tenant(conn) do
+    case resolve_tenant(conn) do
       nil ->
         conn
 
       tenant ->
-        Process.put(:samiti_prefix, tenant)
-        assign(conn, :current_tenant_prefix, tenant)
+        Samiti.put_tenant(tenant)
+
+        conn
+        |> assign(:current_tenant_prefix, tenant)
+        |> put_resp_header("x-tenant-id", tenant)
     end
   end
 
-  defp extract_tenant(conn) do
-    conn.host |> String.split(".") |> List.first()
+  defp resolve_tenant(conn) do
+    case String.split(conn.host, ".") do
+      [tenant, _domain, _tld] -> tenant
+      _ -> nil
+    end
   end
 end
