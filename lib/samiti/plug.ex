@@ -31,7 +31,13 @@ defmodule Samiti.Plug do
   end
 
   defp resolve_tenant(conn) do
-    case String.split(conn.host, ".") do
+    IO.inspect(label: "HOST SEGMENTS")
+
+    conn.host
+    |> IO.inspect(label: "HOST")
+    |> String.split(".")
+    |> IO.inspect(label: "HOST SEGMENTS")
+    |> case do
       [tenant, _domain, _tld] -> tenant
       _ -> nil
     end

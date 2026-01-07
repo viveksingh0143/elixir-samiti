@@ -58,19 +58,22 @@ defmodule Mix.Tasks.Samiti.Setup do
     # 6. Update Config
     update_config(admin_host, assigns[:resource], use_binary_id)
 
-    Mix.shell().info("""
+    # 7. Conditionally call the LiveView Generator
+    if need_liveviews do
+      Mix.shell().info("Triggering LiveView generation...")
+      Mix.Tasks.Samiti.Gen.Live.run([])
+    end
 
-    ✔ Setup Complete!
-    - Created Model: #{model_path} #{if use_binary_id, do: "with binary_id", else: ""}
-    - Created Migration #{if use_binary_id, do: "(with binary_id)", else: ""}: priv/repo/migrations/xxxx_create_#{assigns[:table]}.exs
-    - Created Tenant Migration Folder: #{migration_folder}
-    - Updated config/config.exs with Admin Host: #{admin_host}
-    - Live Views #{if need_liveviews, do: "Generated", else: "Skipped"}
-    """)
+    # 8. Print summary
+    print_summary(naming, admin_host, use_binary_id, migration_path, model_path)
   end
 
   defp update_config(host, resource, use_binary_id) do
     config_path = "config/config.exs"
+
+    Application.put_env(:samiti, :admin_host, host)
+    Application.put_env(:samiti, :tenant_resource, resource)
+    Application.put_env(:samiti, :binary_id, use_binary_id)
 
     if File.exists?(config_path) do
       original_content = File.read!(config_path)
@@ -100,5 +103,17 @@ defmodule Mix.Tasks.Samiti.Setup do
     else
       Mix.shell().error("Could not find config/config.exs")
     end
+  end
+
+  defp print_summary(naming, admin_host, use_binary_id, migration_path, model_path) do
+    Mix.shell().info("""
+    #{IO.ANSI.green()}✔ Samiti Setup Complete!#{IO.ANSI.reset()}
+    #{IO.ANSI.yellow()}Summary:#{IO.ANSI.reset()}
+    • Resource: :#{naming.singular}
+    • Admin Host: #{admin_host}
+    • Binary ID: #{use_binary_id}
+    • Migration Path: #{migration_path}
+    • Model Path: #{model_path}
+    """)
   end
 end

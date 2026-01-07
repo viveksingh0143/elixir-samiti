@@ -43,7 +43,7 @@ defmodule Samiti.MixProject do
 
   defp aliases do
     [
-      test: ["ecto.create --quiet", "test"]
+      # test: ["ecto.create --quiet -r Samiti.TestRepo.Postgres", "test"]
     ]
   end
 

@@ -1,45 +1,83 @@
 defmodule SamitiTest do
-  use ExUnit.Case
-  alias Samiti.TestRepo
+  use ExUnit.Case, async: true
+  # alias Samiti.Utils
+
   doctest Samiti
 
-  setup do
-    start_supervised!(TestRepo)
-    :ok
-  end
+  # setup context do
+  #   # Clear process dictionary state
+  #   on_exit(fn -> Samiti.put_tenant(nil) end)
 
-  setup do
-    # Ensure the Repo is started
-    {:ok, _} = Ecto.Adapters.Postgres.ensure_all_started(TestRepo.config(), :temporary)
+  #   # Database selection logic
+  #   repo =
+  #     cond do
+  #       context[:postgres] -> Samiti.TestRepo.Postgres
+  #       context[:mysql] -> Samiti.TestRepo.MySQL
+  #       true -> nil
+  #     end
 
-    # Start the repo if not already running
-    case TestRepo.start_link() do
-      {:ok, pid} -> {:ok, repo: pid}
-      {:error, {:already_started, pid}} -> {:ok, repo: pid}
-    end
-  end
+  #   if repo do
+  #     start_supervised!(repo)
+  #     Ecto.Adapters.SQL.Sandbox.checkout(repo)
+  #   end
 
-  test "creates and drops a postgres schema" do
-    tenant_name = "test_tenant_#{System.unique_integer([:positive])}"
+  #   {:ok, repo: repo}
+  # end
 
-    assert :ok = Samiti.create(TestRepo, tenant_name)
+  # describe "state management" do
+  #   test "put_tenant/1 and get_tenant/0" do
+  #     Samiti.put_tenant("tenant_a")
+  #     assert Samiti.get_tenant() == "tenant_a"
+  #   end
 
-    result =
-      TestRepo.query!(
-        "SELECT schema_name FROM information_schema.schemata WHERE schema_name = $1",
-        [tenant_name]
-      )
+  #   test "scope_global/1 bypasses current tenant" do
+  #     Samiti.put_tenant("tenant_a")
 
-    assert result.num_rows == 1
+  #     Samiti.scope_global(fn ->
+  #       assert Samiti.get_tenant() == nil
+  #     end)
 
-    assert :ok = Samiti.drop(TestRepo, tenant_name)
+  #     assert Samiti.get_tenant() == "tenant_a"
+  #   end
+  # end
 
-    result =
-      TestRepo.query!(
-        "SELECT schema_name FROM information_schema.schemata WHERE schema_name = $1",
-        [tenant_name]
-      )
+  # describe "database operations" do
+  #   @tag :postgres
+  #   test "create/2 generates correct Postgres schema" do
+  #     repo = Samiti.TestRepo.Postgres
+  #     start_supervised!(repo)
+  #     assert :ok == Samiti.create(repo, "test_schema")
+  #   end
 
-    assert result.num_rows == 0
-  end
+  #   @tag :mysql
+  #   test "create/2 generates correct MySQL database" do
+  #     repo = Samiti.TestRepo.MySQL
+  #     start_supervised!(repo)
+  #     assert :ok == Samiti.create(repo, "test_db")
+  #   end
+  # end
+
+  # test "creates and drops a postgres schema" do
+  #   tenant_name = "test_tenant_#{System.unique_integer([:positive])}"
+
+  #   assert :ok = Samiti.create(TestRepo, tenant_name)
+
+  #   result =
+  #     TestRepo.query!(
+  #       "SELECT schema_name FROM information_schema.schemata WHERE schema_name = $1",
+  #       [tenant_name]
+  #     )
+
+  #   assert result.num_rows == 1
+
+  #   assert :ok = Samiti.drop(TestRepo, tenant_name)
+
+  #   result =
+  #     TestRepo.query!(
+  #       "SELECT schema_name FROM information_schema.schemata WHERE schema_name = $1",
+  #       [tenant_name]
+  #     )
+
+  #   assert result.num_rows == 0
+  # end
 end

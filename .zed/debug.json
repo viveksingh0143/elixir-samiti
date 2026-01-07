@@ -1,0 +1,21 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  {
+    "label": "Launch Mix Project",
+    "adapter": "elixir-ls",
+    "request": "launch",
+    "task": "run",
+    "projectDir": "${workspaceFolder}",
+  },
+  {
+    "label": "Debug Elixir Test",
+    "adapter": "elixir-ls",
+    "request": "launch",
+    "task": "test",
+    "args": ["${file}"],
+    "projectDir": "${workspaceFolder}",
+  },
+]
