@@ -37,9 +37,9 @@ defmodule Samiti do
           repo.query!("CREATE SCHEMA \"#{name}\"")
 
         _ ->
-          repo.query!("CREATE DATABASE `${name}`")
+          repo.query!("CREATE DATABASE `#{name}`")
           # Ecto.Adapters.MyXQL ->
-          #   repo.query!("CREATE DATABASE `${name}`")
+          #   repo.query!("CREATE DATABASE `#{name}`")
       end
 
       :ok
@@ -59,9 +59,9 @@ defmodule Samiti do
           repo.query!("DROP SCHEMA \"#{name}\" CASCADE")
 
         _ ->
-          repo.query!("DROP DATABASE `${name}`")
+          repo.query!("DROP DATABASE `#{name}`")
           # Ecto.Adapters.MyXQL ->
-          #   repo.query!("DROP DATABASE `${name}`")
+          #   repo.query!("DROP DATABASE `#{name}`")
       end
 
       :ok

@@ -12,7 +12,6 @@ defmodule Samiti.TelemetryTest do
       end
 
     if repo do
-      start_supervised!(repo)
       Ecto.Adapters.SQL.Sandbox.checkout(repo)
     end
 

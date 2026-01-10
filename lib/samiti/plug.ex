@@ -31,15 +31,37 @@ defmodule Samiti.Plug do
   end
 
   defp resolve_tenant(conn) do
-    IO.inspect(label: "HOST SEGMENTS")
+    host = conn.host
+    admin_host = Application.get_env(:samiti, :admin_host)
 
-    conn.host
-    |> IO.inspect(label: "HOST")
-    |> String.split(".")
-    |> IO.inspect(label: "HOST SEGMENTS")
-    |> case do
-      [tenant, _domain, _tld] -> tenant
+    cond do
+      # 1. Admin Host Check
+      host == admin_host ->
+        nil
+
+      # Edge case: IP address validation (prevents false positives like "127")
+      match_ip?(host) ->
+        nil
+
+      # 2. Primary Domain & 3. Custom Domain Check
+      # Both strategies currently rely on extracting the first segment.
+      true ->
+        extract_first_segment(host)
+    end
+  end
+
+  defp extract_first_segment(host) do
+    # Robust pattern for extracting first segment regardless of domain length
+    case String.split(host, ".") do
+      [tenant | rest] when rest != [] -> tenant
       _ -> nil
+    end
+  end
+
+  defp match_ip?(host) do
+    case :inet.parse_address(String.to_charlist(host)) do
+      {:ok, _} -> true
+      {:error, _} -> false
     end
   end
 end
